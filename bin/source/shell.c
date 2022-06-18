@@ -154,10 +154,48 @@ int shell_exit(char **args)
  */
 int process_command(char **args)
 {
-  int child_exit_status = -1;
+  int child_exit_status = 1;
   /** TASK 3 **/
 
   // 1. Check if args[0] is NULL. If it is, an empty command is entered, return 1
+  if (args[0] == NULL){
+    return 1;
+  }
+  else {
+    // printf("args[0] is %s", args[0]);
+    if (!strcmp(args[0],"cd")){
+      // printf("command found");
+      return shell_cd(args);
+    }
+    else if (!strcmp(args[0],"help"))
+    {
+      return shell_help(args);
+    }
+    else if (!strcmp(args[0],"exit"))
+    {
+      return shell_exit(args);
+    }
+    else if (!strcmp(args[0],"usage"))
+    {
+      return shell_usage(args);
+    }
+    else{
+      int pid = fork();
+
+      if (pid == 0){
+        exec_sys_prog(args);
+      }
+
+      else if (pid > 0){
+        int status;
+        waitpid(pid, &status, WUNTRACED);        
+        // if child terminates properly, WIFEXITED(status) returns TRUE
+        if (WIFEXITED(status)){
+            child_exit_status = WEXITSTATUS(status);
+        }
+      }
+    }   
+  }
   // 2. Otherwise, check if args[0] is in any of our builtin_commands: cd, help, exit, or usage.
   // 3. If conditions in (2) are satisfied, call builtin shell commands, otherwise perform fork() to exec the system program. Check if fork() is successful.
   // 4. For the child process, call exec_sys_prog(args) to execute the matching system program. exec_sys_prog is already implemented for you.
@@ -184,15 +222,15 @@ char *read_line_stdin(void)
   /** TASK 1 **/
   // read one line from stdin using getline()
   // 1. Check that the char* returned by malloc is not NULL
+  size_t result;
+  if (line == NULL) { exit(EXIT_FAILURE);}
   // 2. Fetch an entire line from input stream stdin using getline() function. getline() will store user input onto the memory location allocated in (1)
+  else{
+    result = getline(&line,&buf_size,stdin); 
   // 3. Return the char*
-  // DO NOT PRINT ANYTHING TO THE OUTPUT
-
-  /***** BEGIN ANSWER HERE *****/
-
-  /*********************/
-
-  return line;
+    return line;
+  }
+  
 }
 
 /**
@@ -208,7 +246,20 @@ char **tokenize_line_stdin(char *line)
   char *token;
 
   /** TASK 2 **/
+  current_number_tokens = 0;
   // 1. Check that char ** that is returned by malloc is not NULL
+  if (tokens!=NULL){
+    /* get the first token */
+      token = strtok(line, SHELL_INPUT_DELIM);
+
+      /* walk through other tokens */
+      while( token != NULL ) {
+        tokens[current_number_tokens] = token;
+        token = strtok(NULL, SHELL_INPUT_DELIM);
+        current_number_tokens++;
+      }
+  }
+  tokens[current_number_tokens] = NULL;
   // 2. Tokenize the input *line using strtok() function
   // 3. Store the address to first letter of each word in the command in tokens
   // 4. Add NULL termination in tokens so we know how many "valid" addresses there are in tokens
@@ -231,6 +282,16 @@ void main_loop(void)
   int status;  // if status == 1, prompt new user input. else, terminate the shell program.
 
   /** TASK 4 **/
+  status = 1;
+  while (status)
+  {
+    line = read_line_stdin();
+    args = tokenize_line_stdin(line);
+    status = process_command(args);
+    free(line);
+    free(args);
+  }
+  
   // write a loop where you do the following:
   // 1. invoke read_line_stdin() and store the output at line
   // 2. invoke tokenize_line_stdin(line) and store the output at args**
@@ -284,5 +345,6 @@ int main(int argc, char **argv)
   // Run command loop
   main_loop();
 
+  
   return 0;
 }
