@@ -16,12 +16,24 @@ static int create_daemon()
     // Incantation on creating a daemon with fork() twice
 
     // 1. Fork() from the parent process
+    pid_t pid;
+    pid = fork();
     // 2. Close parent with exit(1)
+    if (pid!=0){
+        exit(1);
+    }
     // 3. On child process (this is intermediate process), call setsid() so that the child becomes session leader to lose the controlling TTY
+    setsid();
     // 4. Ignore SIGCHLD, SIGHUP
+
     // 5. Fork() again, parent (the intermediate) process terminates
+    pid_t ppid = fork();
     // 6. Child process (the daemon) set new file permissions using umask(0). Daemon's PPID at this point is 1 (the init)
+    if (ppid==0){
+        umask(0);
+    }
     // 7. Change working directory to root
+    
     // 8. Close all open file descriptors using sysconf(_SC_OPEN_MAX) and redirect fd 0,1,2 to /dev/null
     // 9. Return to main
     // DO NOT PRINT ANYTHING TO THE OUTPUT
