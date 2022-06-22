@@ -5,7 +5,6 @@ Count the number of lines in a file
 */
 int execute(char **args)
 {
-
     int number_of_lines = 0;
     FILE *fp;
 
@@ -21,12 +20,22 @@ int execute(char **args)
     /** TASK 5  **/
     // ATTENTION: you need to implement this function from scratch and not to utilize other system program to do this
     // 1. Read the file line by line by using getline(&buffer, &size, fp)
+
     // 2. Loop, as long as getline() does not return -1, keeps reading and increment the count
     // 3. Store the count at number_of_lines
     // DO NOT PRINT ANYTHING TO THE OUTPUT
 
     /***** BEGIN ANSWER HERE *****/
 
+    size_t buf_size = SHELL_BUFFERSIZE;           // size of the buffer
+    char *line = malloc(sizeof(char) * buf_size); // allocate memory space for the line*
+
+    // calculate number of lines
+    while (getline(&line, &buf_size, fp)!=-1)
+    {
+        number_of_lines += 1;
+    }
+    
     /*********************/
     fclose(fp); // close file.
     printf("%d \t %s \n", number_of_lines, args[1]);
