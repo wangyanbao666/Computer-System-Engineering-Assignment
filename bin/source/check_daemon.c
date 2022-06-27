@@ -21,14 +21,22 @@ int execute()
    FILE *fptr;
 
    /* TASK 7 */
+   /***** BEGIN ANSWER HERE *****/
    // 1. Open the file output.txt
+   fptr = fopen("output.txt", "r");
+
    // 2. Fetch line by line using getline()
    // 3. Increase the daemon count whenever we encounter a line
    // 4. Store the count inside live_daemons
+   size_t buf_size = SHELL_BUFFERSIZE;
+   char *line = malloc(sizeof(char) * buf_size);
+   while (getline(&line, &buf_size, fptr)!=-1)
+   {
+      live_daemons += 1;
+   }
+   live_daemons /= 2;
+
    // DO NOT PRINT ANYTHING TO THE OUTPUT
-
-   /***** BEGIN ANSWER HERE *****/
-
    /*********************/
    if (live_daemons == 0)
       printf("No daemon is alive right now.\n");
