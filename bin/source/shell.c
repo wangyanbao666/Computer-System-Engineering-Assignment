@@ -43,6 +43,7 @@ int exec_sys_prog(char **args)
   if (execvp(program_name, args) == -1)
   {
     print_error_message(args);
+    // return 1;
   }
 
   // This line will only be reached if execvp fails to create new process image
@@ -192,6 +193,7 @@ int process_command(char **args)
         // if child terminates properly, WIFEXITED(status) returns TRUE
         if (WIFEXITED(status)){
             child_exit_status = WEXITSTATUS(status);
+            // printf("%d", child_exit_status);
         }
       }
     }   
@@ -258,8 +260,9 @@ char **tokenize_line_stdin(char *line)
         token = strtok(NULL, SHELL_INPUT_DELIM);
         current_number_tokens++;
       }
+      tokens[current_number_tokens] = NULL;
   }
-  tokens[current_number_tokens] = NULL;
+
   // 2. Tokenize the input *line using strtok() function
   // 3. Store the address to first letter of each word in the command in tokens
   // 4. Add NULL termination in tokens so we know how many "valid" addresses there are in tokens
@@ -315,6 +318,7 @@ void main_loop(void)
     line = read_line_stdin();
     args = tokenize_line_stdin(line);
     status = process_command(args);
+    printf("%d",status);
     free(line);
     free(args);
 
