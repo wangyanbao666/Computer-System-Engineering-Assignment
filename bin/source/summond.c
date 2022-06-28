@@ -25,8 +25,10 @@ static int create_daemon()
     }
 
     // 3. On child process (this is intermediate process), call setsid() so that the child becomes session leader to lose the controlling TTY
-    setsid();
-
+    else{
+        setsid();
+    }
+    
     // 4. Ignore SIGCHLD, SIGHUP
     signal(SIGHUP, SIG_IGN);
 
@@ -45,17 +47,15 @@ static int create_daemon()
     int x;
     for (x=sysconf(_SC_OPEN_MAX); x>=0; x--){
         close(x);
-
-        if (x==0){
-            x = open("/dev/null", O_RDWR);
-
-        } else if (x==1||x==2){
-            x=dup(0);
-        }
     }
     
+    int fd0 = open("/dev/null", O_RDWR);
+    int fd1 = dup(0);
+    int fd2 = dup(0);
+    
     // 9. Return to main
-    return;
+    return 0;
+    
     // DO NOT PRINT ANYTHING TO THE OUTPUT
     /***** BEGIN ANSWER HERE *****/
 
