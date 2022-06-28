@@ -318,7 +318,6 @@ void main_loop(void)
     line = read_line_stdin();
     args = tokenize_line_stdin(line);
     status = process_command(args);
-    printf("%d",status);
     free(line);
     free(args);
 
